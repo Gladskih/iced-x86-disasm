@@ -1,0 +1,10 @@
+.build/
+dist/
+node_modules/
+test-results/
+playwright-report/
+*.tgz
+pack-result.json
+package.sha256
+*.log
+.npmrc

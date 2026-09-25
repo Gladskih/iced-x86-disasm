@@ -1,0 +1,52 @@
+{
+  "name": "iced-x86-disasm",
+  "version": "0.1.0",
+  "description": "Compact current iced-x86 decoder and NASM formatter for browsers and Node.js",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "browser": "./dist/browser.js",
+      "node": "./dist/node.js",
+      "default": "./dist/browser.js"
+    },
+    "./iced_x86_bg.wasm": "./dist/iced_x86_bg.wasm"
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/browser.js",
+    "dist/node.js",
+    "dist/index.d.ts",
+    "dist/iced_x86.js",
+    "dist/iced_x86.d.ts",
+    "dist/iced_x86_bg.wasm",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "licenses/iced.txt",
+    "licenses/wasm-bindgen-MIT.txt",
+    "upstream.json"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "test:browser": "playwright test",
+    "verify:package": "node scripts/verify-package.mjs",
+    "prepack": "npm run verify:package"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gladskih/iced-x86-disasm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Gladskih/iced-x86-disasm/issues"
+  },
+  "homepage": "https://github.com/Gladskih/iced-x86-disasm#readme",
+  "keywords": ["x86", "x64", "disassembler", "iced-x86", "webassembly", "wasm"]
+}

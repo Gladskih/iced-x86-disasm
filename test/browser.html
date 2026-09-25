@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>iced-x86-disasm browser test</title></head>
+<body>
+  <main><h1>iced-x86-disasm browser test</h1></main>
+  <script type="module">
+    import { Decoder, DecoderOptions, Formatter, FormatterSyntax, Instruction, Mnemonic }
+      from "../dist/browser.js";
+    const decoder = new Decoder(64, new Uint8Array([0xc3]), DecoderOptions.None);
+    const instruction = new Instruction();
+    const formatter = new Formatter(FormatterSyntax.Nasm);
+    decoder.decodeOut(instruction);
+    window.result = { mnemonic: Mnemonic[instruction.mnemonic], text: formatter.format(instruction) };
+    formatter.free();
+    instruction.free();
+    decoder.free();
+  </script>
+</body>
+</html>

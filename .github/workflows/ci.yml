@@ -1,0 +1,45 @@
+name: Build and test package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: rustup target add wasm32-unknown-unknown
+      - run: cargo install wasm-pack --version 0.14.0 --locked
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - run: npm run verify:package
+      - name: Pack and test exact tarball
+        run: |
+          npm pack --ignore-scripts --json > pack-result.json
+          node scripts/test-tarball.mjs
+          sha256sum "$(node -p 'JSON.parse(require("fs").readFileSync("pack-result.json", "utf8"))[0].filename')" > package.sha256
+      - uses: actions/upload-artifact@v7
+        with:
+          name: iced-x86-disasm-package-${{ github.sha }}
+          if-no-files-found: error
+          path: |
+            *.tgz
+            pack-result.json
+            package.sha256
+

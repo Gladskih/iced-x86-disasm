@@ -1,0 +1,6 @@
+{
+  "repository": "https://github.com/icedland/iced.git",
+  "commit": "8cfc5f57c08fd2e80a4cec9d3d9d36f642b2de31",
+  "wasmPackVersion": "0.14.0",
+  "features": ["decoder", "instr_api", "instr_info", "nasm"]
+}
