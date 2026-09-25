@@ -49,7 +49,7 @@ decode jobs. CSP must allow WebAssembly compilation.
 
 ## Size and source
 
-The `0.1.1` CI build produced a 340,043 byte WASM file and a 743,665 byte
+The `0.1.2` Linux CI build produced a 340,232 byte WASM file and a 743,665 byte
 generated binding. The npm `iced-x86@1.21.0` installation used
 for comparison has a 784,176 byte WASM file and a 924,376 byte binding. The
 package also includes type declarations, two tiny loaders and licenses.
