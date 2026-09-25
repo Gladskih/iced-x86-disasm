@@ -1,6 +1,6 @@
 {
   "name": "iced-x86-disasm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Compact current iced-x86 decoder and NASM formatter for browsers and Node.js",
   "type": "module",
   "license": "MIT",
@@ -48,5 +48,12 @@
     "url": "https://github.com/Gladskih/iced-x86-disasm/issues"
   },
   "homepage": "https://github.com/Gladskih/iced-x86-disasm#readme",
-  "keywords": ["x86", "x64", "disassembler", "iced-x86", "webassembly", "wasm"]
+  "keywords": [
+    "x86",
+    "x64",
+    "disassembler",
+    "iced-x86",
+    "webassembly",
+    "wasm"
+  ]
 }

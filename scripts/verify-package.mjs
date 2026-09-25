@@ -21,4 +21,6 @@ assert.doesNotMatch(binding, /export class (?:Encoder|BlockEncoder|FastFormatter
 assert.match(binding, /export class Decoder/);
 assert.match(binding, /export class Formatter/);
 assert.match(binding, /export class InstructionInfoFactory/);
-console.log(`Verified ${wasm.length} byte WASM and ${statSync(join(dist, "iced_x86.js")).size} byte binding`);
+console.log(
+  `Verified ${wasm.length} byte WASM and ${statSync(join(dist, "iced_x86.js")).size} byte binding`,
+);

@@ -66,6 +66,8 @@ writeFileSync(join(distribution, "browser.js"),
 writeFileSync(join(distribution, "node.js"),
   "import { readFile } from 'node:fs/promises';\n" +
   "import init from './iced_x86.js';\n" +
-  "await init({ module_or_path: await readFile(new URL('./iced_x86_bg.wasm', import.meta.url)) });\n" +
+  "const wasmURL = new URL('./iced_x86_bg.wasm', import.meta.url);\n" +
+  "await init({ module_or_path: await readFile(wasmURL) });\n" +
   "export * from './iced_x86.js';\n");
-writeFileSync(join(distribution, "index.d.ts"), "export * from './iced_x86.js';\n");
+writeFileSync(join(distribution, "index.d.ts"),
+  "export * from './iced_x86.js';\n");

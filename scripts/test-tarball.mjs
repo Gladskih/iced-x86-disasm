@@ -4,7 +4,9 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
-const filename = JSON.parse(readFileSync("pack-result.json", "utf8").replace(/^\uFEFF/, ""))[0].filename;
+const filename = JSON.parse(
+  readFileSync("pack-result.json", "utf8").replace(/^\uFEFF/, ""),
+)[0].filename;
 const temporary = mkdtempSync(join(tmpdir(), "iced-x86-disasm-"));
 try {
   const npmCli = process.env.npm_execpath ??
@@ -15,7 +17,14 @@ try {
     "install", "--ignore-scripts", "--no-audit", "--no-fund", resolve(filename),
   ], { cwd: temporary, stdio: "inherit" });
   assert.equal(install.status, 0, "tarball installation failed");
-  const script = "import('iced-x86-disasm').then(m => { const d = new m.Decoder(64, Uint8Array.of(0xc3), m.DecoderOptions.None); const i = new m.Instruction(); d.decodeOut(i); if (m.Mnemonic[i.mnemonic] !== 'Ret') process.exitCode = 1; i.free(); d.free(); })";
+  const script = `import('iced-x86-disasm').then(module => {
+    const decoder = new module.Decoder(64, Uint8Array.of(0xc3), module.DecoderOptions.None);
+    const instruction = new module.Instruction();
+    decoder.decodeOut(instruction);
+    if (module.Mnemonic[instruction.mnemonic] !== 'Ret') process.exitCode = 1;
+    instruction.free();
+    decoder.free();
+  })`;
   const smoke = spawnSync(process.execPath, ["-e", script], {
     cwd: temporary, stdio: "inherit",
   });

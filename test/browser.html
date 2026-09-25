@@ -10,7 +10,9 @@
     const instruction = new Instruction();
     const formatter = new Formatter(FormatterSyntax.Nasm);
     decoder.decodeOut(instruction);
-    window.result = { mnemonic: Mnemonic[instruction.mnemonic], text: formatter.format(instruction) };
+    window.result = {
+      mnemonic: Mnemonic[instruction.mnemonic], text: formatter.format(instruction),
+    };
     formatter.free();
     instruction.free();
     decoder.free();

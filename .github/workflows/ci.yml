@@ -33,7 +33,8 @@ jobs:
         run: |
           npm pack --ignore-scripts --json > pack-result.json
           node scripts/test-tarball.mjs
-          sha256sum "$(node -p 'JSON.parse(require("fs").readFileSync("pack-result.json", "utf8"))[0].filename')" > package.sha256
+          filename=$(node -p 'require("./pack-result.json")[0].filename')
+          sha256sum "$filename" > package.sha256
       - uses: actions/upload-artifact@v7
         with:
           name: iced-x86-disasm-package-${{ github.sha }}
