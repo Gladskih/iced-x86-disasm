@@ -21,8 +21,9 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-      - run: rustup target add wasm32-unknown-unknown
+      - run: rustup show active-toolchain && rustc --version
       - run: cargo install wasm-pack --version 0.14.0 --locked
+      - run: cargo install wasm-bindgen-cli --version 0.2.129 --locked
       - run: npm ci
       - run: npm run build
       - run: npm test

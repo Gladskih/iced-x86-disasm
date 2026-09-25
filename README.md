@@ -49,15 +49,19 @@ decode jobs. CSP must allow WebAssembly compilation.
 
 ## Size and source
 
-At the pinned commit, this build produces a 340,043 byte WASM file and a
-743,665 byte generated binding. The npm `iced-x86@1.21.0` installation used
+The `0.1.1` CI build produced a 340,043 byte WASM file and a 743,665 byte
+generated binding. The npm `iced-x86@1.21.0` installation used
 for comparison has a 784,176 byte WASM file and a 924,376 byte binding. The
 package also includes type declarations, two tiny loaders and licenses.
 Sizes are raw bytes, not transfer sizes; repeat measurements after updating
-the upstream pin.
+the upstream pin. Rust and Binaryen versions are pinned, but byte-for-byte
+identity across host operating systems is not assumed. Release archives are
+built on the declared CI runner and checked by SHA-256.
 
-[`upstream.json`](upstream.json) pins an exact upstream commit, wasm-pack
-version and Cargo features. Upstream's Rust crate still identifies as
+[`upstream.json`](upstream.json) pins an exact upstream commit, wasm-pack,
+wasm-bindgen CLI, Binaryen archive hashes, and Cargo features.
+[`rust-toolchain.toml`](rust-toolchain.toml) pins Rust 1.96.0 and the WASM
+target. Upstream's Rust crate still identifies as
 `iced-x86 1.21.0`; this package uses subsequent source changes without
 claiming an upstream release. Generated bindings and WASM are built in CI,
 not committed. This package is independent of the iced project. See
@@ -65,8 +69,10 @@ not committed. This package is independent of the iced project. See
 
 ## Building and releases
 
-Install Rust, the `wasm32-unknown-unknown` target, `wasm-pack 0.14.0`, Git,
-and Node.js 22+. Then run:
+Install rustup, `wasm-pack 0.14.0`, `wasm-bindgen-cli 0.2.129`, Git, tar,
+and Node.js 22+. rustup installs the pinned compiler and WASM target from
+`rust-toolchain.toml`. Source builds are supported on x64 Linux and x64
+Windows; the published WASM package is platform-independent. Then run:
 
 ```sh
 npm ci
@@ -79,7 +85,10 @@ npm pack --ignore-scripts
 ```
 
 The build fetches the pinned upstream commit into ignored `.build/`, verifies
-the commit and license, and invokes wasm-pack with only the selected features.
+the commit and license, downloads a Binaryen archive from its pinned release,
+checks its SHA-256, and invokes wasm-pack with only the selected features.
+`wasm-pack` runs in no-install mode so it cannot silently select another
+wasm-bindgen CLI or wasm-opt binary.
 CI also tests a real installed tarball and uploads that exact archive with a
 SHA-256 checksum. No runtime dependencies or external service calls are used
 by the decoder. The release workflow publishes version tags through npm

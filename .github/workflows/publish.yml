@@ -22,8 +22,9 @@ jobs:
         with:
           node-version: '24'
           package-manager-cache: false
-      - run: rustup target add wasm32-unknown-unknown
+      - run: rustup show active-toolchain && rustc --version
       - run: cargo install wasm-pack --version 0.14.0 --locked
+      - run: cargo install wasm-bindgen-cli --version 0.2.129 --locked
       - run: npm ci
       - run: npm run build
       - run: npm test
@@ -32,6 +33,10 @@ jobs:
       - run: npm run verify:package
       - name: Validate tag matches package version
         run: test "$GITHUB_REF_NAME" = "v$(node -p 'require("./package.json").version')"
+      - name: Pack and test release tarball
+        run: |
+          npm pack --ignore-scripts --json > pack-result.json
+          node scripts/test-tarball.mjs
       - name: Check whether version is published
         id: registry
         run: |
@@ -42,4 +47,6 @@ jobs:
             echo 'exists=false' >> "$GITHUB_OUTPUT"
           fi
       - if: steps.registry.outputs.exists == 'false'
-        run: npm publish --ignore-scripts --access public
+        run: |
+          filename=$(node -p 'require("./pack-result.json")[0].filename')
+          npm publish "$filename" --ignore-scripts --access public

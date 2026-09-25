@@ -1,6 +1,6 @@
 {
   "name": "iced-x86-disasm",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Compact current iced-x86 decoder and NASM formatter for browsers and Node.js",
   "type": "module",
   "license": "MIT",

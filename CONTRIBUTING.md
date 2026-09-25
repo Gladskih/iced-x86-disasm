@@ -8,4 +8,5 @@ the affected browser and Node APIs. Use imperative, present-tense commits.
 
 For upstream changes, check the iced-x86 source and license, update
 `upstream.json`, and ensure each enabled feature is needed for disassembly or
-instruction analysis. Preserve local-only browser operation.
+instruction analysis. Review the Rust toolchain and Binaryen pins when
+changing the build. Preserve local-only browser operation.

@@ -1,7 +1,8 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { delimiter, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { prepareBinaryen } from "./binaryen.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const upstream = JSON.parse(readFileSync(join(root, "upstream.json"), "utf8"));
@@ -37,6 +38,9 @@ if (currentCommit !== upstream.commit) {
 if (output("git", ["rev-parse", "HEAD"], source) !== upstream.commit) {
   throw new Error("Fetched iced source does not match upstream.json");
 }
+if (output("git", ["status", "--porcelain", "--untracked-files=normal"], source)) {
+  throw new Error("Pinned iced source has local modifications");
+}
 if (readFileSync(join(source, "LICENSE.txt"), "utf8") !==
     readFileSync(join(root, "licenses", "iced.txt"), "utf8")) {
   throw new Error("Upstream iced license changed; review and update licenses/iced.txt");
@@ -44,9 +48,19 @@ if (readFileSync(join(source, "LICENSE.txt"), "utf8") !==
 if (!output("wasm-pack", ["--version"]).includes(` ${upstream.wasmPackVersion}`)) {
   throw new Error(`Expected wasm-pack ${upstream.wasmPackVersion}`);
 }
+if (!output("wasm-bindgen", ["--version"]).includes(` ${upstream.wasmBindgenCliVersion}`)) {
+  throw new Error(`Expected wasm-bindgen ${upstream.wasmBindgenCliVersion}`);
+}
+const toolchain = readFileSync(join(root, "rust-toolchain.toml"), "utf8");
+const rustVersion = toolchain.match(/^channel = "([0-9]+\.[0-9]+\.[0-9]+)"$/m)?.[1];
+if (!rustVersion || !output("rustc", ["--version"]).startsWith(`rustc ${rustVersion} `)) {
+  throw new Error("Active Rust compiler differs from rust-toolchain.toml");
+}
+process.env.PATH = `${await prepareBinaryen(join(root, ".build"), upstream.binaryen)}` +
+  `${delimiter}${process.env.PATH}`;
 
 run("wasm-pack", [
-  "build", "--mode", "force", "--release", "--target", "web",
+  "build", "--mode", "no-install", "--release", "--target", "web",
   "--out-dir", packageOutput, "--", "--locked", "--no-default-features",
   "--features", upstream.features.join(" "),
 ], join(source, "src", "rust", "iced-x86-js"));
