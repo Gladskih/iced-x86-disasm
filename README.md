@@ -1,7 +1,7 @@
 # iced-x86-disasm
 
 Compact x86/x64 disassembly and instruction analysis for JavaScript, built from
-the current [iced-x86](https://github.com/icedland/iced) Rust source. The npm
+the pinned [iced-x86](https://github.com/icedland/iced) Rust source. The npm
 package includes prebuilt WebAssembly and works fully offline in browsers and
 Node.js. Installation does not run a compiler or download a binary.
 
@@ -94,7 +94,3 @@ SHA-256 checksum. No runtime dependencies or external service calls are used
 by the decoder. The release workflow publishes version tags through npm
 trusted publishing with OIDC after the npm package's trusted publisher is
 configured for `Gladskih/iced-x86-disasm` and `.github/workflows/publish.yml`.
-
-To update iced, change the pin, review upstream API and licenses, rebuild,
-check the package sizes, and run both Node and browser tests. Do not change
-the feature list without checking downstream API use.
