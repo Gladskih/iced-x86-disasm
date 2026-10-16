@@ -49,17 +49,21 @@ decode jobs. CSP must allow WebAssembly compilation.
 
 ## Size and source
 
-The `0.1.2` Linux CI build produced a 340,232 byte WASM file and a 743,665 byte
-generated binding. The npm `iced-x86@1.21.0` installation used
+Version `0.1.3` uses Rust `opt-level=3`, LTO and one code generation unit,
+followed by Binaryen `-O3`. The Windows validation build produced a 446,509 byte
+WASM file (134,140 bytes with gzip level 9; 102,814 with Brotli quality 11)
+and a 743,665 byte generated binding. The previous size-optimized `0.1.2`
+Linux CI build used a 340,232 byte WASM file. The npm `iced-x86@1.21.0` installation used
 for comparison has a 784,176 byte WASM file and a 924,376 byte binding. The
 package also includes type declarations, two tiny loaders and licenses.
-Sizes are raw bytes, not transfer sizes; repeat measurements after updating
-the upstream pin. Rust and Binaryen versions are pinned, but byte-for-byte
-identity across host operating systems is not assumed. Release archives are
+Sizes are raw bytes unless compression is specified; repeat measurements after
+updating the upstream pin. Rust and Binaryen versions are pinned, but build
+hosts and source paths can affect exact bytes. Release archives are
 built on the declared CI runner and checked by SHA-256.
 
 [`upstream.json`](upstream.json) pins an exact upstream commit, wasm-pack,
 wasm-bindgen CLI, Binaryen archive hashes, and Cargo features.
+[`Cargo.lock`](Cargo.lock) pins the Rust dependencies used by the build.
 [`rust-toolchain.toml`](rust-toolchain.toml) pins Rust 1.96.0 and the WASM
 target. Upstream's Rust crate still identifies as
 `iced-x86 1.21.0`; this package uses subsequent source changes without

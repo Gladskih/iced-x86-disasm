@@ -41,6 +41,9 @@ if (output("git", ["rev-parse", "HEAD"], source) !== upstream.commit) {
 if (output("git", ["status", "--porcelain", "--untracked-files=normal"], source)) {
   throw new Error("Pinned iced source has local modifications");
 }
+// wasm-pack runs Cargo metadata before build; seed its ignored lockfile first.
+copyFileSync(join(root, "Cargo.lock"),
+  join(source, "src", "rust", "iced-x86-js", "Cargo.lock"));
 if (readFileSync(join(source, "LICENSE.txt"), "utf8") !==
     readFileSync(join(root, "licenses", "iced.txt"), "utf8")) {
   throw new Error("Upstream iced license changed; review and update licenses/iced.txt");
@@ -58,18 +61,22 @@ if (!rustVersion || !output("rustc", ["--version"]).startsWith(`rustc ${rustVers
 }
 process.env.PATH = `${await prepareBinaryen(join(root, ".build"), upstream.binaryen)}` +
   `${delimiter}${process.env.PATH}`;
+process.env.CARGO_PROFILE_RELEASE_OPT_LEVEL = "3";
 
 run("wasm-pack", [
-  "build", "--mode", "no-install", "--release", "--target", "web",
+  "build", "--mode", "no-install", "--release", "--target", "web", "--no-opt",
   "--out-dir", packageOutput, "--", "--locked", "--no-default-features",
   "--features", upstream.features.join(" "),
 ], join(source, "src", "rust", "iced-x86-js"));
+const optimizedWasm = join(packageOutput, "iced_x86_o3.wasm");
+run("wasm-opt", [join(packageOutput, "iced_x86_bg.wasm"), "-O3", "-o", optimizedWasm]);
 
 rmSync(distribution, { recursive: true, force: true });
 mkdirSync(distribution, { recursive: true });
-for (const name of ["iced_x86.js", "iced_x86.d.ts", "iced_x86_bg.wasm"]) {
+for (const name of ["iced_x86.js", "iced_x86.d.ts"]) {
   copyFileSync(join(packageOutput, name), join(distribution, name));
 }
+copyFileSync(optimizedWasm, join(distribution, "iced_x86_bg.wasm"));
 writeFileSync(join(distribution, "iced_x86.d.ts"),
   "/// <reference lib=\"esnext.disposable\" />\n" +
   readFileSync(join(distribution, "iced_x86.d.ts"), "utf8"));
