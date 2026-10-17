@@ -24,6 +24,8 @@ jobs:
       - run: rustup show active-toolchain && rustc --version
       - run: cargo install wasm-pack --version 0.14.0 --locked
       - run: cargo install wasm-bindgen-cli --version 0.2.129 --locked
+      - name: Verify release maintenance
+        run: node --test test/release-assets.test.mjs test/upstream-release.test.mjs test/upstream-promotion.test.mjs test/registry-release.test.mjs
       - run: npm ci
       - run: npm run build
       - run: npm test
