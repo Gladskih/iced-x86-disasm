@@ -3,6 +3,15 @@ name: Publish to npm
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      upstream:
+        description: Promote a verified automatic upstream candidate
+        type: boolean
+        default: false
+
+env:
+  UPSTREAM_UPDATE: ${{ inputs.upstream || false }}
 
 permissions:
   contents: read
@@ -12,12 +21,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
-      contents: read
+      contents: write
+      pull-requests: write
       id-token: write
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
@@ -25,6 +36,8 @@ jobs:
       - run: rustup show active-toolchain && rustc --version
       - run: cargo install wasm-pack --version 0.14.0 --locked
       - run: cargo install wasm-bindgen-cli --version 0.2.129 --locked
+      - name: Verify release maintenance
+        run: node --test test/release-assets.test.mjs test/upstream-release.test.mjs test/upstream-promotion.test.mjs test/registry-release.test.mjs
       - run: npm ci
       - run: npm run build
       - run: npm test
@@ -32,21 +45,33 @@ jobs:
       - run: npm run test:browser
       - run: npm run verify:package
       - name: Validate tag matches package version
-        run: test "$GITHUB_REF_NAME" = "v$(node -p 'require("./package.json").version')"
+        run: |
+          if [ "$UPSTREAM_UPDATE" != true ]; then
+            test "$GITHUB_REF_TYPE" = tag
+            test "$GITHUB_REF_NAME" = "v$(node -p 'require("./package.json").version')"
+          fi
       - name: Pack and test release tarball
         run: |
           npm pack --ignore-scripts --json > pack-result.json
           node scripts/test-tarball.mjs
-      - name: Check whether version is published
-        id: registry
+          sha256sum "$(node -p 'require("./pack-result.json")[0].filename')" > package.sha256
+      - name: Promote verified upstream candidate
+        if: github.event_name == 'workflow_dispatch' && inputs.upstream
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          version=$(node -p 'require("./package.json").version')
-          if npm view "iced-x86-disasm@$version" version > /dev/null 2>&1; then
-            echo 'exists=true' >> "$GITHUB_OUTPUT"
-          else
-            echo 'exists=false' >> "$GITHUB_OUTPUT"
-          fi
+          gh auth setup-git
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          node scripts/promote-upstream.mjs
+      - name: Check immutable npm release
+        id: registry
+        run: node scripts/check-release.mjs
       - if: steps.registry.outputs.exists == 'false'
         run: |
           filename=$(node -p 'require("./pack-result.json")[0].filename')
-          npm publish "$filename" --ignore-scripts --access public
+          npm publish "$filename" --ignore-scripts --access public --provenance
+      - name: Create or verify immutable GitHub release
+        run: node scripts/publish-release.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
