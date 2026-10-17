@@ -49,32 +49,21 @@ decode jobs. CSP must allow WebAssembly compilation.
 
 ## Size and source
 
-Version `0.1.3` uses Rust `opt-level=3`, LTO and one code generation unit,
-followed by Binaryen `-O3`. The Windows validation build produced a 446,509 byte
-WASM file (134,140 bytes with gzip level 9; 102,814 with Brotli quality 11)
-and a 743,665 byte generated binding. The previous size-optimized `0.1.2`
-Linux CI build used a 340,232 byte WASM file. The npm `iced-x86@1.21.0` installation used
-for comparison has a 784,176 byte WASM file and a 924,376 byte binding. The
-package also includes type declarations, two tiny loaders and licenses.
-Sizes are raw bytes unless compression is specified; repeat measurements after
-updating the upstream pin. Rust and Binaryen versions are pinned, but build
-hosts and source paths can affect exact bytes. Release archives are
-built on the declared CI runner and checked by SHA-256.
+The build uses Rust optimization, LTO and Binaryen. Package sizes and checksums
+are available in the tested release archives; build hosts and source paths can
+affect exact bytes.
 
 [`upstream.json`](upstream.json) pins an exact upstream commit, wasm-pack,
 wasm-bindgen CLI, Binaryen archive hashes, and Cargo features.
 [`Cargo.lock`](Cargo.lock) pins the Rust dependencies used by the build.
-[`rust-toolchain.toml`](rust-toolchain.toml) pins Rust 1.96.0 and the WASM
-target. Upstream's Rust crate still identifies as
-`iced-x86 1.21.0`; this package uses subsequent source changes without
-claiming an upstream release. Generated bindings and WASM are built in CI,
+[`rust-toolchain.toml`](rust-toolchain.toml) pins Rust and the WASM target. Generated bindings and WASM are built in CI,
 not committed. This package is independent of the iced project. See
 [third-party notices](THIRD_PARTY_NOTICES.md).
 
 ## Building and releases
 
-Install rustup, `wasm-pack 0.14.0`, `wasm-bindgen-cli 0.2.129`, Git, tar,
-and Node.js 22+. rustup installs the pinned compiler and WASM target from
+Install rustup, the wasm-pack and wasm-bindgen-cli versions from
+[`upstream.json`](upstream.json), Git, tar, and Node.js 22+. rustup installs the pinned compiler and WASM target from
 `rust-toolchain.toml`. Source builds are supported on x64 Linux and x64
 Windows; the published WASM package is platform-independent. Then run:
 
