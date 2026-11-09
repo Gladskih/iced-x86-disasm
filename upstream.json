@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/icedland/iced.git",
-  "commit": "8cfc5f57c08fd2e80a4cec9d3d9d36f642b2de31",
+  "commit": "cae65b1e90451f22c65f580d4acc752c8a486754",
   "wasmPackVersion": "0.14.0",
   "wasmBindgenCliVersion": "0.2.129",
   "binaryen": {
@@ -10,5 +10,10 @@
       "x86_64-windows": "b09f260176483bd30194303ccb15ac81c2247e4e566894f9d931e4313cb36d58"
     }
   },
-  "features": ["decoder", "instr_api", "instr_info", "nasm"]
+  "features": [
+    "decoder",
+    "instr_api",
+    "instr_info",
+    "nasm"
+  ]
 }
